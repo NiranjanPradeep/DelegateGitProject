@@ -1,7 +1,7 @@
 
 
 #pragma once
-
+#include "Delegate_Traits.hpp"
 struct Delegate_Policy_Single {};
 struct Delegate_Policy_Multiple {};
 

@@ -6,15 +6,15 @@
 #include "Delegate_Traits.hpp"
 #include "Delegate_Policies.hpp"
 
-struct Delegate_Static			{};
-struct Delegate_Dynamic			{};
+struct Delegate_Static {};
+struct Delegate_Dynamic {};
 
 template <typename Policy = Delegate_Policy_Single, typename Type = Delegate_Static>
 class Delegate : Delegate_Policy_Impl<Policy>
 {
 	using DT = Delegate_Traits<>;
 public:
-// Static Allocations
+	// Static Allocations
 	template <
 		DT::FunctionPtr_t FUNC
 	>
@@ -33,21 +33,30 @@ public:
 		Assign(Instance, (ClassFunction<C, FUNC>));
 	}
 
-	template <typename T, T *a>
-	std::enable_if_t<std::is_convertible_v<decltype(*a), DT::STDFunction_t>>
+	template <
+		typename T, 
+		T *a
+	>
+	std::enable_if_t<
+		std::is_convertible_v<decltype(*a), DT::STDFunction_t>
+	>
 	Bind()
 	{
 		Assign(nullptr, (STDFunction<T, a>));
 	}
 
-	template <DT::STDFunction_t *FUNC>
+	template <
+		DT::STDFunction_t *FUNC
+	>
 	void Bind()
 	{
 		Bind<DT::STDFunction_t, FUNC>();
 	}
 
-// Dynamic Allocation
-	template <typename U = Type>
+	// Dynamic Allocation
+	template <
+		typename U = Type
+	>
 	std::enable_if_t<
 		std::is_same_v<U, Delegate_Dynamic>
 	>
@@ -56,7 +65,10 @@ public:
 		Assign(a, (FreeFunction<Delegate_Dynamic>));
 	}
 
-	template <typename C, typename U = Type>
+	template <
+		typename C, 
+		typename U = Type
+	>
 	std::enable_if_t<
 		std::is_same_v<U, Delegate_Dynamic>
 	>
@@ -65,19 +77,25 @@ public:
 		Assign(std::move([=](int i) {(Instance->*a)(i); }), (ClassFunction<C, Delegate_Dynamic>));
 	}
 
-	template <typename T, typename U = Type>
+	template <
+		typename T, 
+		typename U = Type
+	>
 	std::enable_if_t<
 		std::is_same_v<U, Delegate_Dynamic> &&
 		std::is_lvalue_reference_v<T>
-	>    
+	>
 	Bind(T &&a)				// lvalue std::function
 	{
 		Assign(std::ref(a), (STDFunction<Delegate_Dynamic>));
 	}
 
-	template <typename T, typename U = Type>
+	template <
+		typename T,
+		typename U = Type
+	>
 	std::enable_if_t<
-		std::is_same_v<U, Delegate_Dynamic> && 
+		std::is_same_v<U, Delegate_Dynamic> &&
 		std::is_rvalue_reference_v<T&&>
 	>
 	Bind(T &&a)				// rvalue std::function, functor, or lambda
@@ -91,7 +109,7 @@ public:
 	}
 
 private:
-// Static Functions
+	// Static Functions
 	template <void(*FUNC)(int)>
 	inline static void FreeFunction(DT::InstancePtr_t, int i)
 	{
@@ -109,21 +127,21 @@ private:
 		(*FUNC)(i);
 	}
 
-// Dynamic Functions
+	// Dynamic Functions
 	template <typename C, typename U = Type>
 	std::enable_if_t<
 		std::is_same_v<U, Delegate_Dynamic>
 	>
-	inline static ClassFunction(DT::InstancePtr_t func, int i)
+		inline static ClassFunction(DT::InstancePtr_t func, int i)
 	{
-		return (* static_cast<DT::STDFunction_t *>(func))(i);
+		return (*static_cast<DT::STDFunction_t *>(func))(i);
 	}
 
 	template <typename U = Type>
 	std::enable_if_t<
 		std::is_same_v<U, Delegate_Dynamic>
 	>
-	inline static FreeFunction(DT::InstancePtr_t Func, int i)
+		inline static FreeFunction(DT::InstancePtr_t Func, int i)
 	{
 		return (*static_cast<DT::FunctionPtr_t>(Func))(i);
 	}
@@ -132,7 +150,7 @@ private:
 	std::enable_if_t<
 		std::is_same_v<U, Delegate_Dynamic>
 	>
-	inline static STDFunction(DT::InstancePtr_t Func, int i)
+		inline static STDFunction(DT::InstancePtr_t Func, int i)
 	{
 		return (*static_cast<DT::STDFunction_t *>(Func))(i);
 	}
