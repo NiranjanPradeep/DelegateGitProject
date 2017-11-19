@@ -30,7 +30,6 @@ public:
 	>
 	void Bind(C* Instance)	// Class Member Function Pointer
 	{
-		//std::cout << "\nGlobal Class Member Function Pointer";
 		Assign(Instance, (ClassFunction<C, FUNC>));
 	}
 
@@ -38,7 +37,6 @@ public:
 	std::enable_if_t<std::is_convertible_v<decltype(*a), DT::STDFunction_t>>
 	Bind()
 	{
-		//std::cout << "\nGlobal std::function";
 		Assign(nullptr, (STDFunction<T, a>));
 	}
 
@@ -55,7 +53,6 @@ public:
 	>
 	Bind(DT::FunctionPtr_t a)	// Function Pointer
 	{
-		//std::cout << "\nDynamic Free Function Pointer";
 		Assign(a, (FreeFunction<Delegate_Dynamic>));
 	}
 
@@ -65,27 +62,26 @@ public:
 	>
 	Bind(DT::ClassFunctionPtr_t<C> a, C *Instance)	// Class Member Function Pointer
 	{
-		//std::cout << "\nDynamic Class Member Function Pointer";
 		Assign(std::move([=](int i) {(Instance->*a)(i); }), (ClassFunction<C, Delegate_Dynamic>));
 	}
 
 	template <typename T, typename U = Type>
 	std::enable_if_t<
-		std::is_same_v<U, Delegate_Dynamic> && std::is_lvalue_reference_v<T>
+		std::is_same_v<U, Delegate_Dynamic> &&
+		std::is_lvalue_reference_v<T>
 	>    
 	Bind(T &&a)				// lvalue std::function
 	{
-		//std::cout << "\nDynamic Local std::function";
 		Assign(std::ref(a), (STDFunction<Delegate_Dynamic>));
 	}
 
 	template <typename T, typename U = Type>
 	std::enable_if_t<
-		std::is_same_v<U, Delegate_Dynamic> && std::is_rvalue_reference_v<T&&>
+		std::is_same_v<U, Delegate_Dynamic> && 
+		std::is_rvalue_reference_v<T&&>
 	>
 	Bind(T &&a)				// rvalue std::function, functor, or lambda
 	{
-		//std::cout << "\nDynamic Temporary std::function";
 		Assign(std::move(a), (STDFunction<Delegate_Dynamic>));
 	}
 
